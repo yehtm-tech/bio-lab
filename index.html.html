@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>七上生物 互動實驗室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EFF3F5; --surface:#FFFFFF; --surface-2:#F5F8FA;
+  --ink:#16253A; --muted:#5C6E80; --line:#CBD7DF;
+  --iodine:#B8762B; --starch:#1E2757; --benedict:#9CCCE8;
+  --hot:#C2451F; --leaf:#3C7A46; --amber:#E0A32A;
+  --grid:rgba(22,37,58,.055);
+  --shadow:0 1px 0 rgba(22,37,58,.06), 0 10px 24px -18px rgba(22,37,58,.5);
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#101720; --surface:#17202B; --surface-2:#1C2733;
+    --ink:#E6EDF3; --muted:#9AAEBF; --line:#2C3A49;
+    --benedict:#7FB8D8; --grid:rgba(230,237,243,.05);
+    --shadow:0 1px 0 rgba(0,0,0,.4), 0 12px 28px -20px #000;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#101720; --surface:#17202B; --surface-2:#1C2733;
+  --ink:#E6EDF3; --muted:#9AAEBF; --line:#2C3A49;
+  --benedict:#7FB8D8; --grid:rgba(230,237,243,.05);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  font-size:16px; line-height:1.7;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+img{max-width:100%}
+.wrap{max-width:1060px;margin:0 auto;padding:28px 18px 72px}
+header.top{padding:14px 0 6px}
+h1{font-family:"Noto Serif TC",serif;font-weight:700;font-size:clamp(26px,4.2vw,38px);margin:0 0 6px;letter-spacing:.02em}
+.sub{color:var(--muted);margin:0 0 20px}
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+nav.tabs button{
+  font:inherit;font-weight:500;cursor:pointer;padding:10px 16px;border-radius:999px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);transition:.15s;
+}
+nav.tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+nav.tabs button:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--iodine);outline-offset:2px}
+.panel{display:none} .panel.on{display:block}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 18px;margin:0 0 18px;box-shadow:var(--shadow)}
+.card h2{font-family:"Noto Serif TC",serif;font-size:20px;margin:0 0 10px}
+.card h3{font-size:16px;margin:18px 0 8px}
+.hypo{border-left:4px solid var(--leaf);background:var(--surface-2);padding:12px 14px;border-radius:0 10px 10px 0;margin:10px 0}
+.hypo b{color:var(--leaf)}
+.stage{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:12px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.chip{font:inherit;font-size:14px;cursor:pointer;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--iodine);border-color:var(--iodine);color:#fff}
+.chip:disabled{opacity:.4;cursor:not-allowed}
+.btn{font:inherit;font-weight:500;cursor:pointer;padding:9px 16px;border-radius:10px;border:1px solid var(--ink);background:var(--ink);color:var(--paper)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.hint{color:var(--muted);font-size:14px;margin:6px 0 0}
+.log{font-size:14px;color:var(--muted);border-top:1px dashed var(--line);margin-top:12px;padding-top:10px;min-height:1.7em}
+table{width:100%;border-collapse:collapse;font-size:15px;margin:8px 0}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--surface-2);font-weight:500;white-space:nowrap}
+.tablewrap{overflow-x:auto}
+.swatch{display:inline-block;width:15px;height:15px;border-radius:4px;border:1px solid var(--line);vertical-align:-2px;margin-right:6px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;background:var(--surface)}
+details summary{cursor:pointer;font-weight:500}
+details p{margin:8px 0 0;color:var(--muted)}
+textarea,select,input[type=text]{font:inherit;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+textarea{min-height:64px;resize:vertical}
+select{width:auto}
+svg{display:block;max-width:100%;height:auto;margin:0 auto}
+.wellLabel{font-size:11px;fill:var(--muted)}
+.tubeLabel{font-size:13px;fill:var(--ink);font-weight:700}
+.tubeSub{font-size:11px;fill:var(--muted)}
+.liquid{transition:fill .9s ease}
+.stepline{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+.stepline span{font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 11px;background:var(--surface)}
+.stepline span.done{border-color:var(--leaf);color:var(--leaf)}
+.stepline span.now{border-color:var(--ink);color:var(--ink);font-weight:500}
+.grid2{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:760px){.grid2{grid-template-columns:1.1fr .9fr}}
+.bubble{opacity:0}
+.heating .bubble{animation:rise 1.5s linear infinite}
+.bubble:nth-of-type(2){animation-delay:.4s}.bubble:nth-of-type(3){animation-delay:.9s}
+@keyframes rise{0%{opacity:0;transform:translateY(0)}20%{opacity:.75}100%{opacity:0;transform:translateY(-34px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:20px 0 0;border-top:1px solid var(--line);margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>七上生物 互動實驗室</h1>
+  <p class="sub">實驗 2-1 ～ 2-3｜先在螢幕上把實驗做一次，再進實驗室動手做。作答會自動存在這台裝置。</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" id="t1" aria-selected="true" aria-controls="p1">2-1 澱粉與糖的測定</button>
+  <button role="tab" id="t2" aria-selected="false" aria-controls="p2">2-2 酵素的作用</button>
+  <button role="tab" id="t3" aria-selected="false" aria-controls="p3">2-3 光合作用變因</button>
+</nav>
+
+<!-- ============ 實驗 2-1 ============ -->
+<section class="panel on" id="p1" role="tabpanel" aria-labelledby="t1">
+  <div class="card">
+    <h2>實驗 2-1　食物中澱粉與糖的測定</h2>
+    <p>醣類種類很多。這個活動要學會兩種簡易檢測法，再用它們判斷食物裡有沒有澱粉、有沒有糖。</p>
+    <div class="hypo">
+      <b>檢測原理</b><br>
+      黃褐色的<b style="color:var(--iodine)">碘液</b>遇澱粉會變成藍黑色或紫紅色。<br>
+      淺藍色的<b style="color:var(--benedict)">本氏液</b>加入葡萄糖後<b>加熱</b>，會隨糖量出現綠 → 黃 → 橙 → 紅的變化。
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">一、食物中澱粉的測定（梅花盤 ＋ 碘液）</h3>
+    <div class="stepline" id="s1a">
+      <span class="now">1 放入樣本</span><span>2 滴碘液</span><span>3 記錄顏色</span>
+    </div>
+    <div class="stage">
+      <p class="hint" style="margin-top:0">先點下面的樣本，再點梅花盤上空的凹槽放入。中央凹槽已放好清水當對照組。</p>
+      <div class="chips" id="pal1"></div>
+      <svg viewBox="0 0 420 320" id="plate" role="img" aria-label="梅花盤"></svg>
+      <div class="row">
+        <button class="btn" id="btnIodine">在所有凹槽各滴一滴碘液</button>
+        <button class="btn ghost" id="btnReset1">清洗梅花盤</button>
+      </div>
+      <div class="log" id="log1">碘液原色：黃褐色。</div>
+    </div>
+    <div class="tablewrap"><table id="tb1"><thead><tr><th>凹槽內容</th><th>加碘液後顏色</th><th>是否變色</th><th>是否含澱粉</th></tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">二、食物中糖分的測定（本氏液 ＋ 隔水加熱）</h3>
+    <div class="stepline" id="s1b">
+      <span class="now">1 放樣本</span><span>2 加本氏液</span><span>3 隔水加熱</span><span>4 記錄</span>
+    </div>
+    <div class="stage">
+      <p class="hint" style="margin-top:0">四支試管各選一種樣本（固體先用研缽磨成泥）。A 用清水、B 用葡萄糖液，就是課本的對照組。</p>
+      <div class="row" id="tubePickers" style="gap:14px"></div>
+      <svg viewBox="0 0 420 300" id="tubes1" role="img" aria-label="試管 A B C D"></svg>
+      <div class="row">
+        <button class="btn" id="btnBenedict">各加入 2mL 本氏液</button>
+        <button class="btn" id="btnHeat1" disabled>放入 80℃ 水浴隔水加熱</button>
+        <button class="btn ghost" id="btnReset1b">洗淨試管</button>
+      </div>
+      <div class="log" id="log1b">本氏液原色：淺藍色。</div>
+    </div>
+    <div class="tablewrap"><table id="tb1b"><thead><tr><th>試管</th><th>樣本</th><th>加熱前</th><th>加熱後</th><th>含糖量判讀</th></tr></thead><tbody></tbody></table></div>
+
+    <h3>分析與討論</h3>
+    <details><summary>米飯加碘液會變藍黑，加本氏液加熱卻幾乎不變色，為什麼？</summary>
+      <p>米飯的主成分是澱粉，不是小分子的糖。碘液檢測的是澱粉，本氏液檢測的是葡萄糖、麥芽糖這類小分子醣類，兩者測的東西不同。</p></details>
+    <details><summary>為什麼一定要有「清水＋碘液」和「清水＋本氏液」這兩組？</summary>
+      <p>它們是對照組，用來確認顏色變化真的來自食物裡的澱粉或糖，而不是試劑本身或加熱造成的。</p></details>
+    <div><label class="hint" for="n1">我的結論：</label><textarea id="n1" data-save="n1" placeholder="哪些食物含澱粉？哪些含糖？兩者可以同時存在嗎？"></textarea></div>
+  </div>
+</section>
+
+<!-- ============ 實驗 2-2 ============ -->
+<section class="panel" id="p2" role="tabpanel" aria-labelledby="t2">
+  <div class="card">
+    <h2>實驗 2-2　酵素的作用</h2>
+    <p><b>觀察：</b>米飯咀嚼久了會出現甜味。<b>提問：</b>這是唾液造成的嗎？</p>
+    <div class="hypo"><b>假說</b>：人體的唾液能讓澱粉產生出具有甜味的小分子醣類。</div>
+    <div class="tablewrap"><table><thead><tr><th>組別</th><th>操作變因</th><th>控制變因</th></tr></thead>
+      <tbody><tr><td>A 組</td><td>添加清水</td><td rowspan="2">澱粉液體積、溫度、反應時間等</td></tr>
+      <tr><td>B 組</td><td>添加唾液</td></tr></tbody></table></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">設計並進行實驗</h3>
+    <div class="stepline" id="s2">
+      <span class="now">1 設定水浴溫度</span><span>2 混合並靜置 10 分鐘</span><span>3 檢測</span>
+    </div>
+    <div class="stage">
+      <div class="grid2">
+        <div>
+          <svg viewBox="0 0 400 300" id="tubes2" role="img" aria-label="A、B 試管與水浴"></svg>
+        </div>
+        <div>
+          <p style="margin-top:0"><b>水浴溫度</b>（課本用 37℃，這裡可以自己改變因試試看）</p>
+          <div class="chips" id="tempChips"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="btnMix">混合並靜置 10 分鐘</button>
+          </div>
+          <p class="hint">靜置是為了讓兩支試管都維持在設定溫度，並且給反應足夠的時間。</p>
+          <div class="row" style="margin-top:8px">
+            <button class="btn ghost" id="btnIodine2" disabled>取樣滴碘液（測澱粉還在不在）</button>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button class="btn ghost" id="btnBen2" disabled>加本氏液並隔水加熱（測糖）</button>
+            <button class="btn ghost" id="btnReset2">重做一次</button>
+          </div>
+        </div>
+      </div>
+      <div class="log" id="log2">目前水浴：37℃。按「混合並靜置」開始反應。</div>
+    </div>
+    <div class="tablewrap"><table id="tb2"><thead><tr><th>試管（作用環境）</th><th>碘液測試</th><th>剛加入本氏液</th><th>隔水加熱後</th></tr></thead><tbody></tbody></table></div>
+
+    <h3>分析與討論</h3>
+    <details><summary>溶液混合後為什麼不馬上做本氏液測試，要先放回 37℃ 靜置？</summary>
+      <p>為了確保 A、B 兩試管的作用環境維持在 37℃，也讓溶液有時間反應。</p></details>
+    <details><summary>B 組加熱後呈現什麼顏色？為什麼？</summary>
+      <p>綠（或黃、橙、紅）色，代表 B 試管出現糖，可知其中的澱粉被唾液分解而產生糖。</p></details>
+    <details><summary>把水浴改成 5℃ 和 80℃ 各做一次，結果有什麼不同？</summary>
+      <p>5℃ 時酵素活性很低、80℃ 時酵素因高溫失去活性，兩者的澱粉都幾乎沒被分解（碘液仍呈藍黑、本氏液仍偏淺藍）。只有接近體溫的 37℃ 分解得最完全。這說明酵素的作用需要合適的溫度。</p></details>
+    <div><label class="hint" for="n2">本實驗結果支持／不支持假說？表示人體的唾液：</label><textarea id="n2" data-save="n2"></textarea></div>
+  </div>
+</section>
+
+<!-- ============ 實驗 2-3 ============ -->
+<section class="panel" id="p3" role="tabpanel" aria-labelledby="t3">
+  <div class="card">
+    <h2>實驗 2-3　光合作用變因之探討</h2>
+    <p><b>提問：</b>植物照光能夠產生維持生命現象的養分嗎？</p>
+    <div class="hypo"><b>假說</b>：照光是植物進行光合作用的必要條件之一。<br>
+    <span style="color:var(--muted)">參考：光合作用產生的葡萄糖可能形成澱粉儲存；碘液可與澱粉反應呈藍黑色或紫紅色。</span></div>
+    <div class="tablewrap"><table><thead><tr><th>操作變因</th><th>控制變因</th></tr></thead>
+      <tbody><tr><td>有、無光照</td><td>植物的種類、氣溫、土壤含水量等</td></tr></tbody></table></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">設計並進行實驗</h3>
+    <div class="stepline" id="s3"></div>
+    <div class="stage">
+      <div class="grid2">
+        <div><svg viewBox="0 0 360 300" id="leafSvg" role="img" aria-label="葉片"></svg>
+          <p class="hint" id="leafCap" style="text-align:center">葉片還在植株上</p>
+        </div>
+        <div>
+          <p style="margin-top:0"><b>步驟 1　用鋁箔遮住葉片的一部分</b></p>
+          <div class="chips" id="foilChips"></div>
+          <p style="margin-top:12px"><b>遮光時間</b></p>
+          <div class="chips" id="dayChips"></div>
+          <div class="row" style="margin-top:12px;flex-direction:column;align-items:stretch">
+            <button class="btn" id="b3a">2　摘下葉片，熱水加熱軟化</button>
+            <button class="btn" id="b3b" disabled>3　放入酒精中隔水加熱脫色</button>
+            <button class="btn" id="b3c" disabled>4　取出葉片，熱水漂洗</button>
+            <button class="btn" id="b3d" disabled>5　攤平於培養皿，滴上碘液</button>
+            <button class="btn ghost" id="b3r">重做一次</button>
+          </div>
+        </div>
+      </div>
+      <div class="log" id="log3">先決定鋁箔遮住哪裡、遮幾天。</div>
+    </div>
+    <div class="tablewrap"><table id="tb3"><thead><tr><th></th><th>葉片</th><th>酒精</th></tr></thead>
+      <tbody><tr><th>加熱前</th><td id="c31">—</td><td id="c32">—</td></tr>
+      <tr><th>加熱後</th><td id="c33">—</td><td id="c34">—</td></tr></tbody></table></div>
+    <div class="tablewrap"><table><thead><tr><th>滴碘液前</th><th>滴碘液後</th></tr></thead>
+      <tbody><tr><td id="c35">—</td><td id="c36">—</td></tr></tbody></table></div>
+
+    <h3>分析與討論</h3>
+    <details><summary>為什麼要在活動前 3～5 天包鋁箔，而不是 3～5 小時？</summary>
+      <p>被鋁箔覆蓋的區域需要足夠時間，才能把之前行光合作用儲存的產物消耗完。時間太短，遮光處仍有舊的澱粉，滴碘液一樣會變藍黑，就分不出差別了。</p></details>
+    <details><summary>為什麼酒精要「隔水加熱」，不直接加熱？</summary>
+      <p>隔水加熱可避免溫度劇烈變化，降低酒精燃燒的機率。</p></details>
+    <details><summary>滴碘液後，包鋁箔的部位呈黃褐色，表示該部位不具有什麼？</summary>
+      <p>不具有澱粉，所以無法用碘液檢測出藍黑色。</p></details>
+    <div><label class="hint" for="n3">本實驗結果支持／不支持假說？表示：</label><textarea id="n3" data-save="n3"></textarea></div>
+  </div>
+</section>
+
+<footer>天主教花蓮縣私立海星高中暨國中部　生物科教學資源　·　虛擬操作僅供課前預習與課後複習，實際數據請以實驗室操作為準</footer>
+</div>
+
+<script>
+/* ---------- 共用 ---------- */
+const $ = s => document.querySelector(s);
+const el = (t,a={}) => { const n=document.createElementNS("http://www.w3.org/2000/svg",t);
+  for(const k in a) n.setAttribute(k,a[k]); return n; };
+
+const C = { iodine:"#C08434", blue:"#1E2757", benedict:"#9CCCE8",
+  green:"#5E9E43", amber:"#E0A32A", orange:"#DC7A24", red:"#B23A1E",
+  glass:"#E9F1F5", leafGreen:"#3C7A46", leafPale:"#EDE6C8", brown:"#9C7A3C", clear:"#F2F7FA" };
+
+const FOOD = {
+  water:{n:"清水",s:0,g:0}, starch:{n:"澱粉液",s:1,g:0}, glucose:{n:"葡萄糖液",s:0,g:3},
+  rice:{n:"米飯",s:1,g:0}, potato:{n:"馬鈴薯",s:1,g:0}, toast:{n:"吐司",s:1,g:0},
+  banana:{n:"香蕉",s:1,g:2}, apple:{n:"蘋果",s:0,g:3}, grape:{n:"葡萄",s:0,g:3},
+  orange:{n:"橘子",s:0,g:2}, kiwi:{n:"奇異果",s:0,g:2}
+};
+const benColor = g => [C.benedict,C.green,C.orange,C.red][g];
+const benName  = g => ["淺藍色","綠色","橙色","磚紅色"][g];
+const benRead  = g => ["幾乎不含糖","含少量糖","含中等量糖","含大量糖"][g];
+
+/* 記事本自動儲存 */
+document.querySelectorAll("[data-save]").forEach(t=>{
+  const k="smlab:"+t.dataset.save;
+  try{ const v=localStorage.getItem(k); if(v) t.value=v; }catch(e){}
+  t.addEventListener("input",()=>{ try{ localStorage.setItem(k,t.value); }catch(e){} });
+});
+
+/* 分頁 */
+document.querySelectorAll('nav.tabs button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id===b.getAttribute('aria-controls')));
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+function steps(id,i){ document.querySelectorAll('#'+id+' span').forEach((s,k)=>{
+  s.className = k<i ? 'done' : (k===i?'now':''); }); }
+
+/* ================= 2-1 澱粉測定 ================= */
+const plateKeys=["starch","rice","apple","banana","grape","orange","kiwi","potato","toast"];
+let sel1=null, wells=[{k:"water",tested:false}], iodineDone=false;
+const POS=[[210,160],[210,72],[286,116],[286,204],[210,248],[134,204],[134,116]];
+
+function drawPlate(){
+  const svg=$("#plate"); svg.innerHTML="";
+  POS.forEach((p,i)=>{
+    const w=wells[i];
+    const g=el("g");
+    g.appendChild(el("circle",{cx:p[0],cy:p[1],r:34,fill:"var(--surface)",stroke:"var(--line)","stroke-width":"2"}));
+    const c=el("circle",{cx:p[0],cy:p[1],r:26,class:"liquid",
+      fill: w ? (w.tested ? (FOOD[w.k].s?C.blue:C.iodine) : (w.k==="water"?C.clear:"#DCE6EC")) : "transparent",
+      stroke:"var(--line)"});
+    g.appendChild(c);
+    const t=el("text",{x:p[0],y:p[1]+48,"text-anchor":"middle",class:"wellLabel"});
+    t.textContent = w ? FOOD[w.k].n : (i===0?"":"（空）");
+    g.appendChild(t);
+    if(!w){ const hit=el("circle",{cx:p[0],cy:p[1],r:30,fill:"transparent",style:"cursor:pointer"});
+      hit.addEventListener("click",()=>{
+        if(!sel1){ $("#log1").textContent="請先在上面點選一種樣本，再點空的凹槽。"; return; }
+        wells[i]={k:sel1,tested:false}; iodineDone=false;
+        $("#log1").textContent="已把「"+FOOD[sel1].n+"」放入凹槽。"; drawPlate(); paint1(); steps('s1a',1);
+      }); g.appendChild(hit);
+    }
+    svg.appendChild(g);
+  });
+}
+function paint1(){
+  const chips=$("#pal1"); chips.innerHTML="";
+  plateKeys.forEach(k=>{
+    const b=document.createElement("button"); b.className="chip"; b.textContent=FOOD[k].n;
+    b.setAttribute("aria-pressed", sel1===k);
+    b.addEventListener("click",()=>{ sel1=(sel1===k?null:k); paint1(); });
+    chips.appendChild(b);
+  });
+  const tb=$("#tb1 tbody"); tb.innerHTML="";
+  wells.forEach(w=>{ if(!w) return;
+    const f=FOOD[w.k], tr=document.createElement("tr");
+    const col = w.tested ? (f.s?C.blue:C.iodine) : "transparent";
+    tr.innerHTML = "<td>"+f.n+"＋碘液</td><td>"+(w.tested?('<span class="swatch" style="background:'+col+'"></span>'+(f.s?"藍黑色":"黃褐色")):"—")+
+      "</td><td>"+(w.tested?(f.s?"是":"否（維持碘液原色）"):"—")+"</td><td>"+(w.tested?(f.s?"含澱粉":"不含澱粉"):"—")+"</td>";
+    tb.appendChild(tr);
+  });
+}
+$("#btnIodine").addEventListener("click",()=>{
+  if(wells.filter(Boolean).length<2){ $("#log1").textContent="至少再放一種樣本，才有比較的意義。"; return; }
+  wells.forEach(w=>{ if(w) w.tested=true; }); iodineDone=true;
+  drawPlate(); paint1(); steps('s1a',2);
+  $("#log1").textContent="碘液（黃褐色）滴入後：含澱粉的凹槽變成藍黑色，不含澱粉的維持黃褐色。";
+});
+$("#btnReset1").addEventListener("click",()=>{ wells=[{k:"water",tested:false}]; sel1=null; iodineDone=false;
+  drawPlate(); paint1(); steps('s1a',0); $("#log1").textContent="梅花盤已清洗乾淨。"; });
+drawPlate(); paint1();
+
+/* ================= 2-1 糖分測定 ================= */
+const tubeKeys=["water","glucose","rice","apple","banana","grape","orange","kiwi","potato"];
+let t1=[{k:"water"},{k:"glucose"},{k:"rice"},{k:"apple"}], stage1b=0;
+function drawTubes1(){
+  const svg=$("#tubes1"); svg.innerHTML=""; const names=["A","B","C","D"];
+  t1.forEach((t,i)=>{
+    const x=60+i*100, g=el("g");
+    if(stage1b>=2) g.setAttribute("class","heating");
+    g.appendChild(el("rect",{x:x-22,y:40,width:44,height:180,rx:22,fill:C.glass,stroke:"var(--line)","stroke-width":"2"}));
+    let fill="transparent", h=0;
+    if(stage1b===1){ fill=C.benedict; h=110; }
+    if(stage1b>=2){ fill=benColor(FOOD[t.k].g); h=110; }
+    if(stage1b===0){ fill="#DCE6EC"; h=60; }
+    g.appendChild(el("rect",{x:x-20,y:218-h,width:40,height:h,rx:18,fill:fill,class:"liquid"}));
+    if(stage1b>=2){ for(let b=0;b<3;b++){ const c=el("circle",{cx:x-8+b*8,cy:200,r:3,fill:"#fff",class:"bubble"}); g.appendChild(c);} }
+    const lb=el("text",{x:x,y:30,"text-anchor":"middle",class:"tubeLabel"}); lb.textContent=names[i]; g.appendChild(lb);
+    const sb=el("text",{x:x,y:244,"text-anchor":"middle",class:"tubeSub"}); sb.textContent=FOOD[t.k].n; g.appendChild(sb);
+    svg.appendChild(g);
+  });
+  if(stage1b>=2){ svg.appendChild(el("path",{d:"M20 258 H400",stroke:"var(--line)","stroke-width":"2"}));
+    const t=el("text",{x:210,y:280,"text-anchor":"middle",class:"tubeSub"}); t.textContent="80℃ 水浴（隔水加熱）"; svg.appendChild(t); }
+}
+function drawPickers(){
+  const box=$("#tubePickers"); box.innerHTML="";
+  ["A","B","C","D"].forEach((n,i)=>{
+    const wrap=document.createElement("label"); wrap.style.fontSize="14px";
+    wrap.textContent=n+"： ";
+    const s=document.createElement("select"); s.disabled = stage1b>0;
+    tubeKeys.forEach(k=>{ const o=document.createElement("option"); o.value=k; o.textContent=FOOD[k].n;
+      if(t1[i].k===k) o.selected=true; s.appendChild(o); });
+    s.addEventListener("change",()=>{ t1[i].k=s.value; drawTubes1(); table1b(); });
+    wrap.appendChild(s); box.appendChild(wrap);
+  });
+}
+function table1b(){
+  const tb=$("#tb1b tbody"); tb.innerHTML="";
+  ["A","B","C","D"].forEach((n,i)=>{
+    const f=FOOD[t1[i].k], tr=document.createElement("tr");
+    const before = stage1b>=1 ? '<span class="swatch" style="background:'+C.benedict+'"></span>淺藍色' : "—";
+    const after  = stage1b>=2 ? '<span class="swatch" style="background:'+benColor(f.g)+'"></span>'+benName(f.g) : "—";
+    tr.innerHTML="<td>"+n+"</td><td>"+f.n+"</td><td>"+before+"</td><td>"+after+"</td><td>"+(stage1b>=2?benRead(f.g):"—")+"</td>";
+    tb.appendChild(tr);
+  });
+}
+$("#btnBenedict").addEventListener("click",()=>{ stage1b=1; $("#btnHeat1").disabled=false;
+  drawPickers(); drawTubes1(); table1b(); steps('s1b',2); $("#log1b").textContent="四支試管都加入 2mL 本氏液，全部呈淺藍色。此時還看不出差別，必須加熱。"; });
+$("#btnHeat1").addEventListener("click",()=>{ stage1b=2; drawTubes1(); table1b(); steps('s1b',3);
+  $("#log1b").textContent="加熱後顏色依糖量由淺藍 → 綠 → 橙 → 磚紅變化；顏色越偏紅，糖含量越高。"; });
+$("#btnReset1b").addEventListener("click",()=>{ stage1b=0; $("#btnHeat1").disabled=true; drawPickers(); drawTubes1(); table1b(); steps('s1b',0); $("#log1b").textContent="試管已洗淨。"; });
+drawPickers(); drawTubes1(); table1b();
+
+/* ================= 2-2 酵素 ================= */
+let temp=37, mixed=false, iod2=false, ben2=false;
+const TEMPS=[5,37,80];
+/* 分解程度：0 未分解 1 部分 2 完全 */
+const digest = () => temp===37 ? 2 : (temp===5 ? 0 : 0);
+function drawTubes2(){
+  const svg=$("#tubes2"); svg.innerHTML="";
+  [["A","澱粉液＋清水"],["B","澱粉液＋唾液"]].forEach((t,i)=>{
+    const x=130+i*140, g=el("g");
+    if(ben2) g.setAttribute("class","heating");
+    g.appendChild(el("rect",{x:x-22,y:40,width:44,height:170,rx:22,fill:C.glass,stroke:"var(--line)","stroke-width":"2"}));
+    let fill="#DCE6EC";
+    if(ben2){ const g2 = (i===1 && digest()===2) ? 2 : 0; fill=benColor(g2); }
+    else if(mixed) fill="#DCE6EC";
+    g.appendChild(el("rect",{x:x-20,y:118,width:40,height:90,rx:18,fill:fill,class:"liquid"}));
+    if(ben2){ for(let b=0;b<3;b++) g.appendChild(el("circle",{cx:x-8+b*8,cy:195,r:3,fill:"#fff",class:"bubble"})); }
+    const lb=el("text",{x:x,y:30,"text-anchor":"middle",class:"tubeLabel"}); lb.textContent=t[0]; g.appendChild(lb);
+    const sb=el("text",{x:x,y:232,"text-anchor":"middle",class:"tubeSub"}); sb.textContent=t[1]; g.appendChild(sb);
+    svg.appendChild(g);
+  });
+  svg.appendChild(el("path",{d:"M30 250 H370",stroke:"var(--line)","stroke-width":"2"}));
+  const w=el("text",{x:200,y:272,"text-anchor":"middle",class:"tubeSub"}); w.textContent=temp+"℃ 水浴"; svg.appendChild(w);
+}
+function drawTemp(){
+  const box=$("#tempChips"); box.innerHTML="";
+  TEMPS.forEach(v=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=v+"℃";
+    b.setAttribute("aria-pressed",temp===v); b.disabled=mixed;
+    b.addEventListener("click",()=>{ temp=v; drawTemp(); drawTubes2(); $("#log2").textContent="目前水浴："+v+"℃。"; });
+    box.appendChild(b); });
+}
+function table2(){
+  const tb=$("#tb2 tbody"); tb.innerHTML="";
+  const d=digest();
+  [["A試管（澱粉液＋清水於"+temp+"℃）",false],["B試管（澱粉液＋唾液於"+temp+"℃）",true]].forEach(([n,isB])=>{
+    const broken = isB && d===2;
+    const iodTxt = iod2 ? (broken? '<span class="swatch" style="background:'+C.iodine+'"></span>黃褐色（澱粉已消失）'
+                                 : '<span class="swatch" style="background:'+C.blue+'"></span>藍黑色（仍有澱粉）') : "—";
+    const b1 = ben2 ? '<span class="swatch" style="background:'+C.benedict+'"></span>淺藍色' : "—";
+    const b2 = ben2 ? '<span class="swatch" style="background:'+benColor(broken?2:0)+'"></span>'+(broken?"橙色（有糖）":"淺藍色（幾乎無糖）") : "—";
+    const tr=document.createElement("tr"); tr.innerHTML="<td>"+n+"</td><td>"+iodTxt+"</td><td>"+b1+"</td><td>"+b2+"</td>";
+    tb.appendChild(tr);
+  });
+}
+$("#btnMix").addEventListener("click",()=>{
+  mixed=true; drawTemp(); drawTubes2(); table2(); steps('s2',2);
+  $("#btnIodine2").disabled=false; $("#btnBen2").disabled=false; $("#btnMix").disabled=true;
+  $("#log2").textContent="已在 "+temp+"℃ 靜置 10 分鐘。接下來選一種方式檢測。";
+});
+$("#btnIodine2").addEventListener("click",()=>{ iod2=true; table2();
+  const d=digest();
+  $("#log2").textContent = d===2 ? "碘液結果：A 藍黑（澱粉還在）、B 黃褐（澱粉被唾液分解掉了）。"
+    : (temp===5 ? "碘液結果：A、B 都呈藍黑色。低溫下酵素活性很低，澱粉幾乎沒被分解。"
+                : "碘液結果：A、B 都呈藍黑色。高溫使唾液中的酵素失去活性，無法分解澱粉。");
+});
+$("#btnBen2").addEventListener("click",()=>{ ben2=true; drawTubes2(); table2();
+  const d=digest();
+  $("#log2").textContent = d===2 ? "本氏液加熱結果：A 維持淺藍、B 變成橙色，代表 B 產生了小分子的糖。"
+    : "本氏液加熱結果：A、B 都維持淺藍色，代表在 "+temp+"℃ 下澱粉幾乎沒有被分解成糖。";
+});
+$("#btnReset2").addEventListener("click",()=>{ mixed=iod2=ben2=false; $("#btnMix").disabled=false;
+  $("#btnIodine2").disabled=true; $("#btnBen2").disabled=true; drawTemp(); drawTubes2(); table2(); steps('s2',0);
+  $("#log2").textContent="已重置。可以換一個溫度再做一次。"; });
+drawTemp(); drawTubes2(); table2(); steps('s2',0);
+
+/* ================= 2-3 光合作用 ================= */
+let foil="half", days=4, st3=0;
+const S3=["包鋁箔","軟化","脫色","漂洗","滴碘液"];
+function drawStep3(){ const b=$("#s3"); b.innerHTML="";
+  S3.forEach((s,i)=>{ const sp=document.createElement("span"); sp.textContent=(i+1)+" "+s;
+    sp.className = i<st3?"done":(i===st3?"now":""); b.appendChild(sp); }); }
+function drawLeaf(){
+  const svg=$("#leafSvg"); svg.innerHTML="";
+  const base = st3<2 ? C.leafGreen : (st3===2 ? "#BFD3A8" : C.leafPale);
+  const defs=el("defs");
+  const cp=el("clipPath",{id:"lf"});
+  cp.appendChild(el("path",{d:"M180 30 C 90 70, 60 170, 180 260 C 300 170, 270 70, 180 30 Z"}));
+  defs.appendChild(cp); svg.appendChild(defs);
+  const g=el("g");
+  g.appendChild(el("path",{d:"M180 30 C 90 70, 60 170, 180 260 C 300 170, 270 70, 180 30 Z",
+    fill:base, stroke:"#6C8A63","stroke-width":"2", class:"liquid"}));
+  g.appendChild(el("path",{d:"M180 40 V 250",stroke:"#8AA57E","stroke-width":"3"}));
+  for(let i=0;i<4;i++){ const y=80+i*40;
+    g.appendChild(el("path",{d:`M180 ${y} L 110 ${y+26}`,stroke:"#8AA57E","stroke-width":"1.6"}));
+    g.appendChild(el("path",{d:`M180 ${y} L 250 ${y+26}`,stroke:"#8AA57E","stroke-width":"1.6"})); }
+  /* 碘液顯色 */
+  if(st3>=5){
+    const lit=el("path",{d:"M180 30 C 90 70, 60 170, 180 260 C 300 170, 270 70, 180 30 Z",
+      fill: days>=3 ? C.blue : C.blue, opacity:.92, "clip-path":"url(#lf)"});
+    g.appendChild(lit);
+    if(days>=3){ /* 遮光區無澱粉 → 黃褐 */
+      const shape = foil==="half"
+        ? el("rect",{x:180,y:20,width:140,height:260,fill:C.brown,"clip-path":"url(#lf)"})
+        : el("circle",{cx:180,cy:150,r:52,fill:C.brown,"clip-path":"url(#lf)"});
+      g.appendChild(shape);
+    }
+  } else if(st3<2){
+    /* 鋁箔 */
+    const foilEl = foil==="half"
+      ? el("rect",{x:180,y:20,width:140,height:260,fill:"#C9CFD4",stroke:"#A9B2B9","clip-path":"url(#lf)"})
+      : el("circle",{cx:180,cy:150,r:52,fill:"#C9CFD4",stroke:"#A9B2B9","clip-path":"url(#lf)"});
+    g.appendChild(foilEl);
+  }
+  svg.appendChild(g);
+  /* 酒精杯 */
+  if(st3===2){
+    const cup=el("g");
+    cup.appendChild(el("rect",{x:20,y:170,width:64,height:90,rx:6,fill:C.glass,stroke:"var(--line)","stroke-width":"2"}));
+    cup.appendChild(el("rect",{x:24,y:200,width:56,height:56,rx:4,fill:"#7FA45E",class:"liquid"}));
+    const t=el("text",{x:52,y:278,"text-anchor":"middle",class:"tubeSub"}); t.textContent="酒精變綠"; cup.appendChild(t);
+    svg.appendChild(cup);
+  }
+  const caps=["葉片還在植株上，已用鋁箔遮光","葉片已摘下並用熱水軟化","在酒精中隔水加熱，葉綠素溶出","已用熱水漂洗，葉片接近白色","滴上碘液"];
+  $("#leafCap").textContent = caps[Math.min(st3,4)];
+}
+function drawFoil(){
+  const a=$("#foilChips"); a.innerHTML="";
+  [["half","遮住右半邊"],["circle","遮住中央一圈"]].forEach(([k,n])=>{
+    const b=document.createElement("button"); b.className="chip"; b.textContent=n;
+    b.setAttribute("aria-pressed",foil===k); b.disabled=st3>0;
+    b.addEventListener("click",()=>{ foil=k; drawFoil(); drawLeaf(); }); a.appendChild(b); });
+  const d=$("#dayChips"); d.innerHTML="";
+  [[0.2,"3～5 小時"],[4,"3～5 天"]].forEach(([k,n])=>{
+    const b=document.createElement("button"); b.className="chip"; b.textContent=n;
+    b.setAttribute("aria-pressed",days===k); b.disabled=st3>0;
+    b.addEventListener("click",()=>{ days=k; drawFoil(); }); d.appendChild(b); });
+}
+function table3(){
+  $("#c31").textContent = st3>=2 ? "綠色" : "—";
+  $("#c32").textContent = st3>=2 ? "無色（透明）" : "—";
+  $("#c33").textContent = st3>=3 ? "接近白色或淡黃色" : "—";
+  $("#c34").textContent = st3>=3 ? "綠色" : "—";
+  $("#c35").textContent = st3>=5 ? "葉片的綠色已被酒精洗去，呈現接近白色或淺黃色。" : "—";
+  $("#c36").textContent = st3>=5 ? (days>=3
+    ? "被鋁箔包住的部分呈黃褐色，沒有包住的部分呈藍黑色或紫紅色。"
+    : "整片葉子幾乎都變成藍黑色，看不出遮光與照光的差別。") : "—";
+}
+$("#b3a").addEventListener("click",()=>{ st3=2; drawStep3(); drawFoil(); drawLeaf(); table3();
+  $("#b3b").disabled=false; $("#b3a").disabled=true;
+  $("#log3").textContent="葉片放入熱水中加熱數分鐘，細胞被破壞、葉片變軟，方便後續脫色。"; });
+$("#b3b").addEventListener("click",()=>{ st3=3; drawStep3(); drawLeaf(); table3();
+  $("#b3c").disabled=false; $("#b3b").disabled=true;
+  $("#log3").textContent="小燒杯裝酒精、放進大燒杯的熱水中隔水加熱：葉綠素溶進酒精，酒精變綠、葉片變淡。隔水加熱可降低酒精燃燒的風險。"; });
+$("#b3c").addEventListener("click",()=>{ st3=4; drawStep3(); drawLeaf(); table3();
+  $("#b3d").disabled=false; $("#b3c").disabled=true;
+  $("#log3").textContent="用熱水漂洗，洗去殘留的葉綠素與酒精，葉片變得更容易顯色。"; });
+$("#b3d").addEventListener("click",()=>{ st3=5; drawStep3(); drawLeaf(); table3(); $("#b3d").disabled=true;
+  $("#log3").textContent = days>=3
+    ? "碘液顯色：照光的部分變藍黑色（有澱粉），遮光的部分維持黃褐色（沒有澱粉）。結果支持假說。"
+    : "碘液顯色：整片葉子幾乎都是藍黑色。遮光時間太短，原本儲存的澱粉還沒消耗完，這樣就分不出光照的影響了——這正是課本要包 3～5 天的原因。"; });
+$("#b3r").addEventListener("click",()=>{ st3=0; ["b3a","b3b","b3c","b3d"].forEach((id,i)=>$("#"+id).disabled = i>0);
+  drawStep3(); drawFoil(); drawLeaf(); table3(); $("#log3").textContent="已重置。試試看改變遮光時間會怎樣。"; });
+drawStep3(); drawFoil(); drawLeaf(); table3();
+</script>
+</body>
+</html>
